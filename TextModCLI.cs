@@ -10,7 +10,7 @@
 
         #region Common variables and functions
 
-        const string noInput_error = "Syntax-Error: insuffecient input.";
+        const string noInput_error = "Syntax-Error: insuffecient input. Use -help to see a list of usable commands.";
         const string operation_error = "Syntax-Error: invalid operation.";
         const string firstSelector_error = "Syntax-Error: invalid first selector.";
         const string secondSelector_error = "Syntax-Error: invalid second selector.";
@@ -19,7 +19,7 @@
         const string secondSelectorWithoutOperation_error = "Syntax-Error: cannot place second selector before or without operation.";
         const string secondSelectorWithoutFirst_error = "Syntax-Error: cannot place second selector before or without first selector.";
         const string logical_error = "Logical-Error: something went wrong.";
-        private static bool caps, ncaps, rcaps, wrdpsnt, ltrpsnt, ltrpwrd, cstmi, lasti, eveni, oddi, sntcs;
+        private static bool help, caps, ncaps, rcaps, wrdpsnt, ltrpsnt, ltrpwrd, cstmi, lasti, eveni, oddi, sntcs;
         private static uint arg_index, pos_index;
 
         private static bool IsAllFalse(params bool[] booleans)
