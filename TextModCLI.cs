@@ -10,15 +10,66 @@
 
         #region Common variables and functions
 
-        const string noInput_error = "Syntax-Error: insuffecient input. Use -help to see a list of usable commands.";
-        const string operation_error = "Syntax-Error: invalid operation.";
-        const string firstSelector_error = "Syntax-Error: invalid first selector.";
-        const string secondSelector_error = "Syntax-Error: invalid second selector.";
-        const string comboOperationWithSelectors_error = "Syntax-Error: cannot put selectors with combo operations.";
-        const string firstSelectorWithoutOperation_error = "Syntax-Error: cannot place first selector before or without operation.";
-        const string secondSelectorWithoutOperation_error = "Syntax-Error: cannot place second selector before or without operation.";
-        const string secondSelectorWithoutFirst_error = "Syntax-Error: cannot place second selector before or without first selector.";
-        const string logical_error = "Logical-Error: something went wrong.";
+        private const string noInput_error = "Syntax-Error: insuffecient input. Use -help to see a list of usable commands.";
+        private const string operation_error = "Syntax-Error: invalid operation.";
+        private const string firstSelector_error = "Syntax-Error: invalid first selector.";
+        private const string secondSelector_error = "Syntax-Error: invalid second selector.";
+        private const string comboOperationWithSelectors_error = "Syntax-Error: cannot put selectors with combo-operations and non-operations.";
+        private const string firstSelectorWithoutOperation_error = "Syntax-Error: cannot place first selector before or without operation.";
+        private const string secondSelectorWithoutOperation_error = "Syntax-Error: cannot place second selector before or without operation.";
+        private const string secondSelectorWithoutFirst_error = "Syntax-Error: cannot place second selector before or without first selector.";
+        private const string logical_error = "Logical-Error: something went wrong.";
+        private const string help_text =
+            "-------------------------- \n" +
+            "TextMod v0.1 © 2022 AnimaxNeil \n\n" +
+            "List of operations : \n" +
+            "1. c, capital, u, upper, uppercase \n" +
+            "   => Capatalize or convert to uppercase. \n" +
+            "2. s, Small, l, lower, lowercase \n" +
+            "   => Uncapitalize or convert to lover case. \n" +
+            "3. rcs, reversecapitalsmall, rul, reverseupperlower, reversecase, t, toogle, tooglecase \n" +
+            "   => Reverse the case or convert upper case to lower case and vice versa. \n" +
+            "4. sen, sentence, sentencecase \n" +
+            "   => Converts entire text to sentence case. \n\n" +
+            "List of first selectors : \n" +
+            "1. wps, wordpersentence, ws \n" +
+            "   => Selection applies to words in each sentence. \n" +
+            "2. lps, letterpersentence, ls \n" +
+            "   => Selection applies to letters in each sentence. \n" +
+            "3, lpw, letterperword, lw \n" +
+            "   => Selection applies to letters in eaxh word. \n\n" +
+            "List of second selectors : \n" +
+            "1. f, first, start \n" +
+            "   => First one or the one at the start. \n" +
+            "2. l, last, end \n" +
+            "   => Last one or the one at the end. \n" +
+            "3. e, even \n" +
+            "   => The ones at even positions. \n" +
+            "4. o, odd \n" +
+            "   => The ones at odd positions. \n" +
+            "5. 1, 2, 3, 4, ... \n" +
+            "   => The one at the given numeric position. \n\n" +
+            "Valid command syntaxes : \n" +
+            "[ The <arguments> are flags that should be written with prefix (-) and without the <> ] \n" +
+            "1. txtmod <operation> <selector1> <selector2> <text> \n" +
+            "   => Performs the operation on given text as per the first and second selections. \n" +
+            "2. txtmod <operation> <selector1> <text> \n" +
+            "   => Performs the operation on given text as per the first selector and the second selector is (1) by default. \n" +
+            "3. txtmod <operation> <text> \n" +
+            "   => Performs the operation on the entire given text. \n" +
+            "4. txtmod <text> \n" +
+            "   => Performs the default combined operation (sen) on the entire text. \n" +
+            "Note: (sen) is a combo-operation and (help) is non-operation. These cannot be used with any selectors. \n\n" +
+            "Some examples : \n" +
+            "1. txtmod -c -lpw -e The Fox jumped over the moon. \n" +
+            "   => THe FOx jUmPeD oVeR tHe mOoN. \n" +
+            "2. txtmod -c -wps the Fox jumped over the moon. \n" +
+            "   => THE Fox jumped over the moon. \n" +
+            "3. txtmod -rcs THe FOx jUmPeD oVeR tHe mOoN. \n" +
+            "   => thE foX JuMpEd OvEr ThE MoOn. \n" +
+            "4. txtmod thE foX JuMpEd OvEr ThE MoOn. \n" +
+            "   => The fox jumped over the moon. \n" +
+             "-------------------------- \n";
         private static bool help, caps, ncaps, rcaps, wrdpsnt, ltrpsnt, ltrpwrd, cstmi, lasti, eveni, oddi, sntcs;
         private static uint arg_index, pos_index;
 
@@ -58,6 +109,9 @@
             }
             switch (flag)
             {
+                case "-HELP":
+                    help = true;
+                    break;
                 case "-SENTENCECASE":
                 case "-SENTENCE":
                 case "-SEN":
@@ -128,6 +182,12 @@
             }
             switch (flag)
             {
+                case "-START":
+                case "-FIRST":
+                case "-F":
+                    cstmi = true;
+                    pos_index = 1;
+                    break;
                 case "-END":
                 case "-LAST":
                 case "-L":
@@ -140,12 +200,6 @@
                 case "-ODD":
                 case "-O":
                     oddi = true;
-                    break;
-                case "-START":
-                case "-FIRST":
-                case "-F":
-                    cstmi = true;
-                    pos_index = 1;
                     break;
                 default:
                     try
@@ -183,6 +237,11 @@
                 OutputToConsole(operation_error);
                 return false;
             }
+            if (help)
+            {
+                OutputToConsole(help_text);
+                return false;
+            }
             if (arg_index >= args.Length)
             {
                 OutputToConsole(noInput_error);
@@ -191,7 +250,7 @@
             flagStatus = ExtractFirstSelectetorFlag(args[arg_index].ToUpper());
             if (flagStatus == FlagStatus.Found)
             {
-                if (sntcs)
+                if (help || sntcs)
                 {
                     OutputToConsole(comboOperationWithSelectors_error);
                     return false;
@@ -216,7 +275,7 @@
             flagStatus = ExtractSecondSelectorFlag(args[arg_index].ToUpper());
             if (flagStatus == FlagStatus.Found)
             {
-                if (sntcs)
+                if (help || sntcs)
                 {
                     OutputToConsole(comboOperationWithSelectors_error);
                     return false;
@@ -269,28 +328,32 @@
         private static string OperateInput(string inpText)
         {
             string modText;
-            if (IsAllFalse(sntcs, caps, ncaps, rcaps, wrdpsnt, ltrpsnt, ltrpwrd, cstmi, lasti, eveni, oddi))
+            if (IsAllFalse(help, sntcs, caps, ncaps, rcaps, wrdpsnt, ltrpsnt, ltrpwrd, cstmi, lasti, eveni, oddi))
             {
                 sntcs = true;
             }
-            if (sntcs && IsAllFalse(caps, ncaps, rcaps, wrdpsnt, ltrpsnt, ltrpwrd, cstmi, lasti, eveni, oddi))
+            if (help && IsAllFalse(sntcs, caps, ncaps, rcaps, wrdpsnt, ltrpsnt, ltrpwrd, cstmi, lasti, eveni, oddi))
+            {
+                return help_text;
+            }
+            else if (sntcs && IsAllFalse(help, caps, ncaps, rcaps, wrdpsnt, ltrpsnt, ltrpwrd, cstmi, lasti, eveni, oddi))
             {
                 modText = TextOperations.ToLowerCase_all(inpText);
                 modText = modText = TextOperations.Operate_LetterPerSentence(modText, OperationType.Upper, PositionType.Custom, 1);
             }
-            else if (caps && IsAllFalse(sntcs, ncaps, rcaps, wrdpsnt, ltrpsnt, ltrpwrd, cstmi, lasti, eveni, oddi))
+            else if (caps && IsAllFalse(help, sntcs, ncaps, rcaps, wrdpsnt, ltrpsnt, ltrpwrd, cstmi, lasti, eveni, oddi))
             {
                 modText = TextOperations.ToUpperCase_all(inpText);
             }
-            else if (ncaps && IsAllFalse(sntcs, caps, rcaps, wrdpsnt, ltrpsnt, ltrpwrd, cstmi, lasti, eveni, oddi))
+            else if (ncaps && IsAllFalse(help, sntcs, caps, rcaps, wrdpsnt, ltrpsnt, ltrpwrd, cstmi, lasti, eveni, oddi))
             {
                 modText = TextOperations.ToLowerCase_all(inpText);
             }
-            else if (rcaps && IsAllFalse(sntcs, caps, ncaps, wrdpsnt, ltrpsnt, ltrpwrd, cstmi, lasti, eveni, oddi))
+            else if (rcaps && IsAllFalse(help, sntcs, caps, ncaps, wrdpsnt, ltrpsnt, ltrpwrd, cstmi, lasti, eveni, oddi))
             {
                 modText = TextOperations.ToReverseCase_all(inpText);
             }
-            else if (!sntcs && IsAnyTrue(caps, ncaps, rcaps) && IsAnyTrue(wrdpsnt, ltrpsnt, ltrpwrd))
+            else if (!help && !sntcs && IsAnyTrue(caps, ncaps, rcaps) && IsAnyTrue(wrdpsnt, ltrpsnt, ltrpwrd))
             {
                 if (IsAllFalse(cstmi, lasti, eveni, oddi))
                 {
@@ -333,5 +396,6 @@
             string modText = OperateInput(inpText);
             OutputToConsole(modText);
         }
+
     }
 }
